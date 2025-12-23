@@ -111,7 +111,7 @@
 //            bool result = IsPermutation(a, b);
 
 //            Console.WriteLine($"\"{a}\" и \"{b}\" → {result} (ожидалось: {expected})");
-//            Console.WriteLine(result == expected ? "   ✓ Успех" : "   ✗ Ошибка");
+//            Console.WriteLine(result == expected ? "Успех" : "Ошибка");
 //            Console.WriteLine();
 //        }
 
@@ -120,124 +120,112 @@
 //}
 
 //3
-//using System;
+using System;
 
-//public class Matrix
-//{
-//    private double[,] data;
-//    public int Rows { get; }
-//    public int Columns { get; }
+public class Matrix
+{
+    private double[,] data;
+    public int Rows { get; }
+    public int Columns { get; }
 
-//    public Matrix(int rows, int columns)
-//    {
-//        if (rows <= 0 || columns <= 0)
-//            throw new ArgumentException("Размеры матрицы должны быть положительными.");
+    public Matrix(int rows, int columns)
+    {
+        Rows = rows;
+        Columns = columns;
+        data = new double[rows, columns];
+    }
 
-//        Rows = rows;
-//        Columns = columns;
-//        data = new double[rows, columns];
-//    }
+    public Matrix(double[,] array)
+    {
+        Rows = array.GetLength(0);
+        Columns = array.GetLength(1);
+        data = (double[,])array.Clone(); 
+    }
 
-//    public Matrix(double[,] array)
-//    {
-//        if (array == null)
-//            throw new ArgumentNullException(nameof(array));
+    public double this[int row, int col]
+    {
+        get => data[row, col];
+        set => data[row, col] = value;
+    }
 
-//        Rows = array.GetLength(0);
-//        Columns = array.GetLength(1);
+    public static Matrix operator +(Matrix a, Matrix b)
+    {
+        Matrix result = new Matrix(a.Rows, a.Columns);
+        for (int i = 0; i < a.Rows; i++)
+        {
+            for (int j = 0; j < a.Columns; j++)
+            {
+                result[i, j] = a[i, j] + b[i, j];
+            }
+        }
+        return result;
+    }
 
-//        if (Rows == 0 || Columns == 0)
-//            throw new ArgumentException("Матрица не может быть пустой.");
+    public static Matrix operator -(Matrix a, Matrix b)
+    {
+        Matrix result = new Matrix(a.Rows, a.Columns);
+        for (int i = 0; i < a.Rows; i++)
+        {
+            for (int j = 0; j < a.Columns; j++)
+            {
+                result[i, j] = a[i, j] - b[i, j];
+            }
+        }
+        return result;
+    }
 
-//        data = (double[,])array.Clone();
-//    }
+    public static Matrix operator *(Matrix a, Matrix b)
+    {
+        Matrix result = new Matrix(a.Rows, b.Columns);
+        for (int i = 0; i < a.Rows; i++)
+        {
+            for (int j = 0; j < b.Columns; j++)
+            {
+                double sum = 0;
+                for (int k = 0; k < a.Columns; k++)
+                {
+                    sum += a[i, k] * b[k, j];
+                }
+                result[i, j] = sum;
+            }
+        }
+        return result;
+    }
 
-//    public double this[int row, int col]
-//    {
-//        get
-//        {
-//            if (row < 0 || row >= Rows || col < 0 || col >= Columns)
-//                throw new IndexOutOfRangeException("Индекс вне границ матрицы.");
-//            return data[row, col];
-//        }
-//        set
-//        {
-//            if (row < 0 || row >= Rows || col < 0 || col >= Columns)
-//                throw new IndexOutOfRangeException("Индекс вне границ матрицы.");
-//            data[row, col] = value;
-//        }
-//    }
+    public override string ToString()
+    {
+        string result = "";
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                result += $"{data[i, j],8:F2} ";
+            }
+            result += "\n";
+        }
+        return result.Trim();
+    }
+}
 
-//    public static Matrix operator +(Matrix a, Matrix b)
-//    {
-//        if (a.Rows != b.Rows || a.Columns != b.Columns)
-//            throw new InvalidOperationException(
-//                $"Нельзя сложить матрицы: размеры не совпадают ({a.Rows}x{a.Columns} и {b.Rows}x{b.Columns}).");
+class Program
+{
+    static void Main(string[] args)
+    {
+        double[,] arr1 = { { 1, 2 }, { 3, 4 } };
+        double[,] arr2 = { { 5, 6 }, { 7, 8 } };
 
-//        Matrix result = new Matrix(a.Rows, a.Columns);
-//        for (int i = 0; i < a.Rows; i++)
-//        {
-//            for (int j = 0; j < a.Columns; j++)
-//            {
-//                result[i, j] = a[i, j] + b[i, j];
-//            }
-//        }
-//        return result;
-//    }
+        Matrix A = new Matrix(arr1);
+        Matrix B = new Matrix(arr2);
 
-//    public static Matrix operator -(Matrix a, Matrix b)
-//    {
-//        if (a.Rows != b.Rows || a.Columns != b.Columns)
-//            throw new InvalidOperationException(
-//                $"Нельзя вычесть матрицы: размеры не совпадают ({a.Rows}x{a.Columns} и {b.Rows}x{b.Columns}).");
+        Console.WriteLine("Матрица A:\n" + A);
+        Console.WriteLine("Матрица B:\n" + B);
+        Console.WriteLine("A + B:\n" + (A + B));
+        Console.WriteLine("A - B:\n" + (A - B));
+        Console.WriteLine("A * B:\n" + (A * B));
 
-//        Matrix result = new Matrix(a.Rows, a.Columns);
-//        for (int i = 0; i < a.Rows; i++)
-//        {
-//            for (int j = 0; j < a.Columns; j++)
-//            {
-//                result[i, j] = a[i, j] - b[i, j];
-//            }
-//        }
-//        return result;
-//    }
-
-//    public static Matrix operator *(Matrix a, Matrix b)
-//    {
-//        if (a.Columns != b.Rows)
-//            throw new InvalidOperationException(
-//                $"Нельзя умножить матрицы: количество столбцов первой ({a.Columns}) не равно количеству строк второй ({b.Rows}).");
-
-//        Matrix result = new Matrix(a.Rows, b.Columns);
-//        for (int i = 0; i < a.Rows; i++)
-//        {
-//            for (int j = 0; j < b.Columns; j++)
-//            {
-//                double sum = 0;
-//                for (int k = 0; k < a.Columns; k++)
-//                {
-//                    sum += a[i, k] * b[k, j];
-//                }
-//                result[i, j] = sum;
-//            }
-//        }
-//        return result;
-//    }
-
-//    public override string ToString()
-//    {
-//        string result = "";
-//        for (int i = 0; i < Rows; i++)
-//        {
-//            for (int j = 0; j < Columns; j++)
-//            {
-//                result += $"{data[i, j],8:F2} ";
-//            }
-//            result += "\n";
-//        }
-//        return result.Trim();
-//    }
-//}
+        Console.ReadKey();
+    }
+}
 
 //4
 //using System;
@@ -329,7 +317,6 @@
 
 //class LogAnalyzer
 //{
-//    // Функция для анализа логов
 //    public static Dictionary<string, int> AnalyzeLogs(string filePath)
 //    {
 //        var errorCounts = new Dictionary<string, int>();
@@ -382,7 +369,7 @@
 //    {
 //        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-//        string filePath = "logs.txt"; /
+//        string filePath = "logs.txt"; 
 
 //        try
 //        {
@@ -396,4 +383,5 @@
 
 //        Console.ReadKey();
 //    }
+
 //}
